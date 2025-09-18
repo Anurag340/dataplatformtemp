@@ -1,0 +1,138 @@
+name: Deploy Service
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  validate-deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate deployment permissions
+        run: |
+          # For production, check user and branch
+          if [ "${{ github.event.inputs.environment }}" = "prod" ]; then
+            echo "🔒 Production deployment requested"
+            
+            # Check if user is authorized
+            if [ "${{ github.actor }}" != "mayankSpw" ] && [ "${{ github.actor }}" != "abinthomasonline" ]; then
+              echo "❌ User ${{ github.actor }} is not authorized for production deployments"
+              echo "Authorized users: mayankSpw, abinthomasonline"
+              exit 1
+            fi
+            
+            # Check if branch is main
+            if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+              echo "❌ Production deployments can only be triggered from main branch"
+              echo "Current branch: ${{ github.ref }}"
+              exit 1
+            fi
+            
+            echo "✅ Production deployment validated"
+          else
+            echo "✅ Development deployment - no additional validation required"
+          fi
+
+  deploy-dev:
+    needs: validate-deployment
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'dev'
+    
+    steps:
+      - name: Deploy to Development
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST_DEV }}
+          username: ${{ secrets.SSH_USERNAME_DEV }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
+          port: ${{ secrets.SSH_PORT_DEV }}
+          script: |
+            # Navigate to project directory
+            cd ${{ secrets.PROJECT_DIR_DEV }}
+            
+            # Pull latest changes
+            echo "📥 Pulling latest changes..."
+            git pull origin main
+            
+            # Activate virtual environment
+            echo "🔧 Activating virtual environment..."
+            source venv/bin/activate
+            
+            # Install/update package in development mode
+            echo "📦 Installing package in development mode..."
+            pip install -e .
+            
+            # Reload PM2 process
+            echo "🔄 Reloading PM2 process..."
+            pm2 reload ecosystem.config.js
+            
+            echo "✅ Deployment completed successfully!"
+            
+            # Show PM2 status
+            echo "📊 PM2 Status:"
+            pm2 status
+
+      - name: Deployment Summary
+        run: |
+          echo "🚀 Deployment Summary"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Timestamp: $(date -u)"
+
+  deploy-prod:
+    needs: validate-deployment
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'prod'
+    
+    steps:
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST_PROD }}
+          username: ${{ secrets.SSH_USERNAME_PROD }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_PROD }}
+          port: ${{ secrets.SSH_PORT_PROD }}
+          script: |
+            # Navigate to project directory
+            cd ${{ secrets.PROJECT_DIR_PROD }}
+            
+            # Pull latest changes
+            echo "📥 Pulling latest changes..."
+            git pull origin main
+            
+            # Activate virtual environment
+            echo "🔧 Activating virtual environment..."
+            source venv/bin/activate
+            
+            # Install/update package in development mode
+            echo "📦 Installing package in development mode..."
+            pip install -e .
+            
+            # Reload PM2 process
+            echo "🔄 Reloading PM2 process..."
+            pm2 reload ecosystem.config.js
+            
+            echo "✅ Deployment completed successfully!"
+            
+            # Show PM2 status
+            echo "📊 PM2 Status:"
+            pm2 status
+
+      - name: Deployment Summary
+        run: |
+          echo "🚀 Deployment Summary"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Timestamp: $(date -u)"

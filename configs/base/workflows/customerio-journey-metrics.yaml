@@ -1,0 +1,22 @@
+compute: single-node-standard-f8
+tasks:
+  journey-subjects-ingestor:
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: customerio.CustomerioSubjectsIngestor
+      destination-table: customerio_journey_subjects
+      processed-files-table: customerio_processed_files
+  journey-outputs-ingestor:
+    compute: single-node-standard-f8
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: customerio.CustomerioOutputsIngestor
+      destination-table: customerio_journey_outputs
+      processed-files-table: customerio_processed_files
+  journey-metrics-transformation:
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: customerio.CustomerioJourneyMetricsTransform
+    depends-on:
+      - journey-outputs-ingestor
+      - journey-subjects-ingestor

@@ -1,0 +1,14 @@
+compute: single-node-standard-f8
+tasks:
+  people-ingestor:
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: customerio.CustomerioPeopleIngestor
+      destination-table: customerio_people
+      processed-files-table: customerio_processed_files
+  people-transformation:
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: customerio.CustomerioPeopleTransform
+    depends-on:
+      - people-ingestor

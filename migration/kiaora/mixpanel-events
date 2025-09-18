@@ -1,0 +1,27 @@
+
+WITH fixed_table AS (
+	SELECT event, "time", distinct_id, insert_id, properties, metadata, extract(epoch FROM (created_at::timestamp AT TIME ZONE 'UTC')) AS created_at, event_type_id
+	FROM kiaora.mixpanel_events
+), ranked AS (
+    SELECT
+        t.*,
+        ROW_NUMBER() OVER (
+            PARTITION BY event, "time", distinct_id, insert_id
+            ORDER BY created_at DESC
+        ) AS rn
+    FROM fixed_table t
+), source_table AS (
+	SELECT event, "time", distinct_id, insert_id, properties, metadata, created_at, event_type_id
+	FROM ranked
+	WHERE rn = 1
+)
+
+INSERT INTO kiaoracom.mixpanel_events
+SELECT * FROM source_table
+ON CONFLICT (event, "time", distinct_id, insert_id) DO UPDATE 
+SET
+	properties = EXCLUDED.properties,
+	metadata = EXCLUDED.metadata,
+	created_at = EXCLUDED.created_at,
+	event_type_id = EXCLUDED.event_type_id
+WHERE EXCLUDED.created_at > kiaoracom.mixpanel_events.created_at;

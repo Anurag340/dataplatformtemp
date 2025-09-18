@@ -1,0 +1,6 @@
+compute: single-node-standard-f8
+tasks:
+  transformation:
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: amplitude.AmplitudeEventsTransform

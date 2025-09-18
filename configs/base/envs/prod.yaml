@@ -1,0 +1,22 @@
+notification-emails:
+  - "abin@propel.bz"
+  - "mayank@propel.bz"
+  # - "anish@propel.bz"
+retry-policy:
+  max-retries: 1
+  min-retry-interval-millis: 300000
+databricks-config:
+  host: "$DATABRICKS_HOST"
+  token: "$DATABRICKS_TOKEN"
+azure-storage-connection-string: "$PROD_AZURE_STORAGE_CONNECTION_STRING"
+redis-config:
+  host: "$PROD_REDIS_HOST"
+  port: "$PROD_REDIS_PORT"
+  password: "$PROD_REDIS_PASSWORD"
+postgres-config:
+  host: "$PROD_PG_HOST"
+  port: "$PROD_PG_PORT"
+  database: "$PROD_PG_DATABASE"
+  user: "$PROD_PG_USER"
+  password: "$PROD_PG_PASSWORD"
+  

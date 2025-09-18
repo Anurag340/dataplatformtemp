@@ -1,0 +1,2 @@
+INSERT INTO weglowapp.amplitude_events
+SELECT * FROM weglow.amplitude_events

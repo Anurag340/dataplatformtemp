@@ -1,0 +1,22 @@
+compute: single-node-standard-f8
+tasks:
+  metrics-ingestor:
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: customerio.CustomerioMetricsIngestor
+      destination-table: customerio_channel_metrics
+      processed-files-table: customerio_processed_files
+  deliveries-ingestor:
+    task-class: RunIngestorTask
+    compute: single-node-standard-f8
+    task-config: 
+      ingestor-class: customerio.CustomerioDeliveriesIngestor
+      destination-table: customerio_channel_deliveries
+      processed-files-table: customerio_processed_files
+  metrics-transformation:
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: customerio.CustomerioChannelMetricsTransform
+    depends-on:
+      - metrics-ingestor
+      - deliveries-ingestor

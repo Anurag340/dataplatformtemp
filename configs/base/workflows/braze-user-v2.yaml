@@ -1,0 +1,7 @@
+__base__: base/workflows/braze-user.yaml
+
+compute: single-node-standard-f8
+tasks:
+  export-ids-connector:
+    task-config:
+      external-ids-pg-query: "select distinct user_id as distinct_id from {client_name}.amplitude_events where user_id is not null"

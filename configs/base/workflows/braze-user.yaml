@@ -1,0 +1,41 @@
+compute: single-node-standard-f8
+tasks:
+  export-ids-connector:
+    task-class: RunConnectorTask
+    task-config: 
+      connector-class: braze.BrazeUserExportIdsConnector
+      external-ids-pg-query: "select distinct distinct_id from {client_name}.mixpanel_events"
+  export-ids-ingestor:
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: braze.BrazeUserExportIdsIngestor
+      destination-table: user_workflow_data
+    depends-on:
+      - export-ids-connector
+  campaign-transformation:
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeUserCampaignTransform
+    depends-on:
+      - export-ids-ingestor
+  canvas-transformation:
+    compute: single-node-standard-f8
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeUserCanvasTransform
+    depends-on:
+      - export-ids-ingestor
+  canvas-steps-transformation:
+    compute: single-node-standard-f8
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeUserCanvasStepsTransform
+    depends-on:
+      - export-ids-ingestor
+  details-transformation:
+    compute: single-node-standard-f8
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeUserDetailsTransform
+    depends-on:
+      - export-ids-ingestor

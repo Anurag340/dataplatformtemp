@@ -1,0 +1,4 @@
+black
+databricks-connect==15.4.12
+isort
+jupyterlab

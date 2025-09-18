@@ -1,0 +1,14 @@
+compute: single-node-standard-f8
+tasks:
+  events-connector:
+    task-class: RunConnectorTask
+    task-config: 
+      connector-class: mixpanel.MixpanelEventsConnector
+  events-ingestor:
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: mixpanel.MixpanelEventsIngestor
+      sql-chunks: 1000
+      destination-table: events
+    depends-on:
+      - events-connector

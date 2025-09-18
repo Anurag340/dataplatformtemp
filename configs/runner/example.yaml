@@ -1,0 +1,42 @@
+start-date: "2025-09-06"
+end-date: "2025-09-06"
+connectors:
+  - domain: kiaoracom
+    tool_name: mixpanel
+    config:
+      api-url: https://data.mixpanel.com/api/2.0
+      username: "propel-kiaora.1cebb1.mp-service-account"
+      password: f1xFaSBGttqpWkDg24Lmr2fsSTqeg8Mr
+      project-id: 3435891
+  - domain: kiaoracom
+    tool_name: customerio
+  - domain: weglowapp
+    tool_name: braze
+    config:
+      api-url: https://rest.fra-02.braze.eu
+      api-key: 130c7a85-1f4e-4a94-8924-24f7f2ffa98e
+  - domain: weglowapp
+    tool_name: amplitude
+  - domain: hookmusiccom
+    tool_name: mixpanel
+    config:
+      api-url: https://data.mixpanel.com/api/2.0
+      password: cHfiHzWqPmgNpXibRLHEtfGHa7QF7yOQ
+      username: Propel.f0ca55.mp-service-account
+      project-id: 3274703
+  - domain: finalroundaicom
+    tool_name: amplitude
+  - domain: finalroundaicom
+    tool_name: customerio
+  - domain: dorsiacom
+    tool_name: braze
+    config:
+      api-url: https://rest.iad-07.braze.com
+      api-key: 74c6bfac-bae5-4fb9-a742-a27f9f3cdc49
+  - domain: dorsiacom
+    tool_name: mixpanel
+    config:
+      api-url: https://data.mixpanel.com/api/2.0
+      password: EuwGDL7KcTOYlC6pS4O8qUtZldn6YrET
+      username: propeldatapi.ab1d7f.mp-service-account
+      project-id: 2654340

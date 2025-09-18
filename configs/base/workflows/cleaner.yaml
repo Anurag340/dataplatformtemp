@@ -1,0 +1,6 @@
+compute: single-node-standard-f8
+tasks:
+  postgres-cleaner:
+    task-class: RunCleanerTask
+    task-config:
+      cleaner-class: PostgresCleaner

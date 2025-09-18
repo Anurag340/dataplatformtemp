@@ -1,0 +1,72 @@
+amplitude-events:
+  max_concurrent_tasks: 1
+  tools:
+    - amplitude
+  workflows: []
+braze-campaigns:
+  max_concurrent_tasks: 3
+  tools:
+    - braze
+  workflows: []
+braze-canvas:
+  max_concurrent_tasks: 4
+  tools:
+    - braze
+  workflows: []
+braze-user-v2:
+  max_concurrent_tasks: 4
+  tools:
+    - braze
+  workflows:
+    - amplitude-events
+braze-user:
+  max_concurrent_tasks: 4
+  tools:
+    - braze
+  workflows:
+    - mixpanel-events
+    - mixpanel-events-run30d
+# cleaner:
+#   max_concurrent_tasks: 1
+#   tools: []
+#   workflows: []
+customerio-campaigns:
+  max_concurrent_tasks: 1
+  tools:
+    - customerio
+  workflows: []
+customerio-channel-metrics:
+  max_concurrent_tasks: 2
+  tools:
+    - customerio
+  workflows: []
+customerio-journey-metrics:
+  max_concurrent_tasks: 2
+  tools:
+    - customerio
+  workflows: []
+customerio-newsletters:
+  max_concurrent_tasks: 1
+  tools:
+    - customerio
+  workflows: []
+customerio-people:
+  max_concurrent_tasks: 1
+  tools:
+    - customerio
+  workflows: []
+customerio-transactional-messages:
+  max_concurrent_tasks: 1
+  tools:
+    - customerio
+  workflows: []
+mixpanel-events-run30d:
+  max_concurrent_tasks: 1
+  tools:
+    - mixpanel
+  workflows: []
+mixpanel-events:
+  max_concurrent_tasks: 1
+  tools:
+    - mixpanel
+  workflows: []

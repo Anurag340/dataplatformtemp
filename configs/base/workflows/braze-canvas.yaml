@@ -1,0 +1,70 @@
+compute: single-node-standard-f8
+tasks:
+  list-connector:
+    task-class: RunConnectorTask
+    task-config: 
+      connector-class: braze.BrazeCanvasListConnector
+  list-ingestor:
+    depends-on:
+      - list-connector
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: braze.BrazeCanvasListIngestor
+      destination-table: canvas_list
+  details-connector:
+    depends-on:
+      - list-ingestor
+    task-class: RunConnectorTask
+    task-config: 
+      connector-class: braze.BrazeCanvasDetailsConnector
+      canvas-ids-query: "SELECT id FROM {environment}.{client_name}.braze_canvas_list_view"
+  details-ingestor:
+    depends-on:
+      - details-connector
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: braze.BrazeCanvasDetailsIngestor
+      destination-table: canvas_details
+  data-series-connector:
+    depends-on:
+      - details-ingestor
+    task-class: RunConnectorTask
+    task-config: 
+      connector-class: braze.BrazeCanvasDataSeriesConnector
+      canvas-ids-query: "SELECT canvas_id, get_json_object(data, '$.data.created_at') AS created_at, get_json_object(data, '$.data.enabled') AS is_enabled FROM {environment}.{client_name}.braze_canvas_details_view"
+      include-variant-breakdown: "true"
+      include-step-breakdown: "true"
+  data-series-ingestor:
+    depends-on:
+      - data-series-connector
+    task-class: RunIngestorTask
+    task-config: 
+      ingestor-class: braze.BrazeCanvasDataSeriesIngestor
+      destination-table: canvas_data_series
+  details-transformation:
+    compute: single-node-standard-f8
+    depends-on:
+      - details-ingestor
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeCanvasDetailsTransform
+  steps-transformation:
+    depends-on:
+      - data-series-ingestor
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeCanvasStepsTransform
+  channels-transformation:
+    compute: single-node-standard-f8
+    depends-on:
+      - data-series-ingestor
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeChannelsCanvasTransform
+  variations-transformation:
+    depends-on:
+      - data-series-ingestor
+    compute: single-node-standard-f8
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeVariantsCanvasTransform

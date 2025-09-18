@@ -1,0 +1,61 @@
+compute: single-node-standard-f8
+tasks:
+  list-connector:
+    task-class: RunConnectorTask
+    task-config:
+      connector-class: braze.BrazeCampaignsListConnector
+  list-ingestor:
+    depends-on:
+      - list-connector
+    task-class: RunIngestorTask
+    task-config:
+      ingestor-class: braze.BrazeCampaignsListIngestor
+      destination-table: campaigns_list
+  details-connector:
+    depends-on:
+      - list-ingestor
+    task-class: RunConnectorTask
+    task-config:
+      connector-class: braze.BrazeCampaignsDetailsConnector
+      campaign-ids-query: "SELECT id FROM {environment}.{client_name}.braze_campaigns_list_view"
+  details-ingestor:
+    depends-on:
+      - details-connector
+    task-class: RunIngestorTask
+    task-config:
+      ingestor-class: braze.BrazeCampaignsDetailsIngestor
+      destination-table: campaigns_details
+  details-transformation:
+    depends-on:
+      - details-ingestor
+    compute: single-node-standard-f8
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeCampaignDetailsTransform
+  data-series-connector:
+    depends-on:
+      - details-ingestor
+    task-class: RunConnectorTask
+    task-config:
+      connector-class: braze.BrazeCampaignsDataSeriesConnector
+      campaign-ids-query: "SELECT campaign_id, get_json_object(data, '$.created_at') AS created_at, get_json_object(data, '$.enabled') as is_enabled FROM {environment}.{client_name}.braze_campaigns_details_view"
+  data-series-ingestor:
+    depends-on:
+      - data-series-connector
+    task-class: RunIngestorTask
+    task-config:
+      ingestor-class: braze.BrazeCampaignsDataSeriesIngestor
+      destination-table: campaigns_data_series
+  channels-campaign-transformation:
+    depends-on:
+      - data-series-ingestor
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeChannelsCampaignTransform
+  variations-transformation:
+    depends-on:
+      - data-series-ingestor
+    compute: single-node-standard-f8
+    task-class: RunTransformationTask
+    task-config:
+      transformation-class: braze.BrazeVariantsCampaignTransform

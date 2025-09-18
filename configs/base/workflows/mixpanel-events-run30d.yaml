@@ -1,0 +1,7 @@
+__base__: base/workflows/mixpanel-events.yaml
+
+compute: single-node-standard-f8
+tasks:
+  events-connector:
+    task-config:
+      offset: 30
